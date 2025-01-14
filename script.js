@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 'use strict';
 
 let title = prompt('Как называется ваш проект?');
@@ -15,53 +14,51 @@ let servicePrice1 = Number(prompt('Сколько это будет стоить
 let service2 = prompt('Какой дополнительный тип услуги нужен?');
 let servicePrice2 = Number(prompt('Сколько это будет стоить?'));
 
-let fullPrice = screenPrice + servicePrice1 + servicePrice2;
-
 let rollback = 43;
 
-let servicePercentPrice = Math.ceil(fullPrice - fullPrice * (rollback / 100));
-console.log(servicePercentPrice);
+const showTypeof = function (arg) {
+  console.log(arg, typeof arg);
+};
 
-if (fullPrice >= 30000) {
-  console.log('Даем скидку в 10%');
-} else if (fullPrice >= 15000 && fullPrice < 30000) {
-  console.log('Даем скидку в 5%');
-} else if (fullPrice < 15000) {
-  console.log('Скидка не предусмотрена');
-} else {
-  console.log('Что то пошло не так');
+const getRollbackMessage = function (price) {
+  if (price >= 30000) {
+    return 'Даем скидку в 10%';
+  } else if (price >= 15000 && price < 30000) {
+    return 'Даем скидку в 5%';
+  } else if (price < 15000) {
+    return 'Скидка не предусмотрена';
+  } else {
+    return 'Что то пошло не так';
+  }
+};
+
+const getAllServicePrices = function (...args) {
+  return args.reduce((acc, el) => acc * el, 1);
+};
+
+function getFullPrice(...args) {
+  return args.reduce((acc, el) => acc + el, 1);
 }
 
-// console.log(typeof title);
-// console.log(typeof fullPrice);
-// console.log(typeof adaptive);
-// console.log(screens.length);
-// console.log(
-//   `Стоимость верстки экранов ${screenPrice} рублей/долларов/гривен/юани`,
-// );
-// console.log(
-//   `Стоимость разработки сайта ${fullPrice} рублей/долларов/гривен/юани`,
-// );
-// console.log(screens.toLowerCase().split(', '));
-// console.log(fullPrice * (rollback / 100));
-=======
-let title = '';
-let screens = 'Простые, Сложные, Интерактивные';
-let screenPrice = 3;
-let rollback = 43;
-let fullPrice = 50000;
-let adaptive = true;
+function getTitle(title) {
+  return title.trim()[0].toUpperCase() + title.trim().toLowerCase().slice(1);
+}
 
-console.log(typeof title);
-console.log(typeof fullPrice);
-console.log(typeof adaptive);
-console.log(screens.length);
-console.log(
-  `Стоимость верстки экранов ${screenPrice} рублей/долларов/гривен/юани`,
-);
-console.log(
-  `Стоимость разработки сайта ${fullPrice} рублей/долларов/гривен/юани`,
-);
+function getServicePercentPrices(price, rollback) {
+  return Math.ceil(price - price * (rollback / 100));
+}
+
+let allServicePrices = getAllServicePrices(servicePrice1, servicePrice2);
+
+let servicePercentPrice = getServicePercentPrices(fullPrice, rollback);
+
+let fullPrice = getFullPrice(screenPrice, allServicePrices);
+
+getTitle(title);
+
+showTypeof(title);
+showTypeof(fullPrice);
+showTypeof(adaptive);
+
+console.log(getRollbackMessage(fullPrice));
 console.log(screens.toLowerCase().split(', '));
-console.log(fullPrice * (rollback / 100));
->>>>>>> Stashed changes
