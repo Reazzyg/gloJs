@@ -3,25 +3,63 @@
 let allServicePrices;
 let servicePercentPrice;
 let fullPrice;
-
-let title = prompt('Как называется ваш проект?');
-
-let screens = prompt('Какие типы экранов нужно разработать?');
-
-let screenPrice = Number(prompt('Сколько будет стоить данная работа?'));
-
-let adaptive = confirm('Нужен ли адаптив на сайте?');
-
-let service1 = prompt('Какой дополнительный тип услуги нужен?');
-let servicePrice1 = Number(prompt('Сколько это будет стоить?'));
-
-let service2 = prompt('Какой дополнительный тип услуги нужен?');
-let servicePrice2 = Number(prompt('Сколько это будет стоить?'));
+let title;
+let screens;
+let screenPrice;
+let adaptive;
+let service1;
+let service2;
 
 let rollback = 43;
 
+const isNumber = function (num) {
+  return !isNaN(parseFloat(num)) && isFinite(num);
+};
+
+const asking = function () {
+  title = prompt('Как называется ваш проект?', 'asd');
+  screens = prompt('Какие типы экранов нужно разработать?', 'asd');
+
+  do {
+    let q = prompt('Сколько будет стоить данная работа?');
+    if (q === null) {
+      screenPrice = 0;
+      break;
+    }
+    screenPrice = parseFloat(q.trim());
+  } while (!isNumber(screenPrice));
+
+  adaptive = confirm('Нужен ли адаптив на сайте?');
+};
+
+// const getAllServicePrices = function (...args) {
+//   return args.reduce((acc, el) => acc * el, 1);
+// };
+
+const getAllServicePrices = function () {
+  let sum = 0;
+  for (let i = 0; i < 2; i++) {
+    if (i === 0) {
+      service1 = prompt('Какой дополнительный тип услуги нужен?', 'qq');
+    } else if (i === 1) {
+      service2 = prompt('Какой дополнительный тип услуги нужен?', 'ww');
+    }
+    let price;
+    do {
+      let q = prompt('Сколько это будет стоить?');
+      if (q === null) {
+        price = 0;
+        break;
+      }
+      price = parseFloat(q.trim());
+    } while (!isNumber(price));
+    sum += price;
+  }
+  return sum;
+};
+
 const showTypeof = function (arg) {
-  console.log(arg, typeof arg);
+  console.log(arg + ` : `, typeof arg);
 };
 
 const getRollbackMessage = function (price) {
@@ -36,12 +74,8 @@ const getRollbackMessage = function (price) {
   }
 };
 
-const getAllServicePrices = function (...args) {
-  return args.reduce((acc, el) => acc * el, 1);
-};
-
 function getFullPrice(...args) {
-  return args.reduce((acc, el) => acc + el, 1);
+  return args.reduce((acc, el) => acc + el, 0);
 }
 
 function getTitle(title) {
@@ -52,7 +86,9 @@ function getServicePercentPrices(price, rollback) {
   return Math.ceil(price - price * (rollback / 100));
 }
 
-allServicePrices = getAllServicePrices(servicePrice1, servicePrice2);
+asking();
+
+allServicePrices = getAllServicePrices();
 
 servicePercentPrice = getServicePercentPrices(fullPrice, rollback);
 
