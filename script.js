@@ -1,5 +1,9 @@
 'use strict';
 
+let allServicePrices;
+let servicePercentPrice;
+let fullPrice;
+
 let title = prompt('Как называется ваш проект?');
 
 let screens = prompt('Какие типы экранов нужно разработать?');
@@ -48,13 +52,13 @@ function getServicePercentPrices(price, rollback) {
   return Math.ceil(price - price * (rollback / 100));
 }
 
-let allServicePrices = getAllServicePrices(servicePrice1, servicePrice2);
+allServicePrices = getAllServicePrices(servicePrice1, servicePrice2);
 
-let servicePercentPrice = getServicePercentPrices(fullPrice, rollback);
+servicePercentPrice = getServicePercentPrices(fullPrice, rollback);
 
-let fullPrice = getFullPrice(screenPrice, allServicePrices);
+fullPrice = getFullPrice(screenPrice, allServicePrices);
 
-getTitle(title);
+title = getTitle(title);
 
 showTypeof(title);
 showTypeof(fullPrice);
