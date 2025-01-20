@@ -5,53 +5,89 @@ const appData = {
   servicePercentPrice: 0,
   fullPrice: 0,
   title: '',
-  screens: '',
+  screens: [],
   screenPrice: 0,
   adaptive: true,
-  service1: '',
-  service2: '',
+  services: {},
   rollback: 43,
+
+  start: function () {
+    this.asking();
+    this.addPrices();
+    this.getServicePercentPrices(this.fullPrice, this.rollback);
+    this.getFullPrice(this.screenPrice, this.allServicePrices);
+    this.getTitle(this.title);
+    this.logger();
+  },
 
   isNumber: function (num) {
     return !isNaN(parseFloat(num)) && isFinite(num);
   },
 
   asking: function () {
-    this.title = prompt('Как называется ваш проект?', 'asd');
-    this.screens = prompt('Какие типы экранов нужно разработать?', 'asd');
-
-    do {
-      let q = prompt('Сколько будет стоить данная работа?');
-      if (q === null) {
-        this.screenPrice = 0;
-        break;
-      }
-      this.screenPrice = parseFloat(q.trim());
-    } while (!this.isNumber(this.screenPrice));
+    let title = prompt('Как называется ваш проект?', 'asd');
+    while (this.isNumber(title)) {
+      title = prompt(
+        'Название проекта должно быть строкой. Попробуйте еще раз:',
+        'asd',
+      );
+    }
+    this.title = title.trim();
 
     this.adaptive = confirm('Нужен ли адаптив на сайте?');
-  },
 
-  getAllServicePrices: function () {
-    let sum = 0;
     for (let i = 0; i < 2; i++) {
-      if (i === 0) {
-        this.service1 = prompt('Какой дополнительный тип услуги нужен?', 'qq');
-      } else if (i === 1) {
-        this.service2 = prompt('Какой дополнительный тип услуги нужен?', 'ww');
+      let name = prompt('Какие типы экранов нужно разработать?', 'asd');
+      while (this.isNumber(name)) {
+        name = prompt(
+          'Название экрана должно быть строкой. Попробуйте еще раз:',
+          'asd',
+        );
+      }
+
+      let price = 0;
+      do {
+        price = prompt('Сколько будет стоить данная работа?');
+        while (!this.isNumber(price)) {
+          price = prompt('Цена должна быть числом. Попробуйте еще раз:', 'asd');
+        }
+      } while (!this.isNumber(price));
+      price = parseFloat(price.trim());
+
+      this.screens.push({ id: i, name: name, price: price });
+    }
+
+    for (let i = 0; i < 2; i++) {
+      let name = prompt('Какой дополнительный тип услуги нужен?', 'qq');
+      while (this.isNumber(name)) {
+        name = prompt(
+          'Название услуги должно быть строкой. Попробуйте еще раз:',
+          'qq',
+        );
       }
       let price;
       do {
         let q = prompt('Сколько это будет стоить?');
+        while (!this.isNumber(q)) {
+          q = prompt('Цена должна быть числом. Попробуйте еще раз:');
+        }
+
         if (q === null) {
           price = 0;
           break;
         }
         price = parseFloat(q.trim());
       } while (!this.isNumber(price));
-      sum += price;
+
+      this.services[`${name}${i}`] = price;
     }
-    return sum;
+  },
+  addPrices: function () {
+    this.screenPrice = this.screens.reduce((acc, el) => acc + el.price, 0);
+
+    for (let key in this.services) {
+      this.allServicePrices += this.services[key];
+    }
   },
   showTypeof: function (arg) {
     console.log(arg + ` : `, typeof arg);
@@ -68,35 +104,23 @@ const appData = {
     }
   },
   getFullPrice: function (...args) {
-    return args.reduce((acc, el) => acc + el, 0);
+    this.fullPrice = args.reduce((acc, el) => acc + el, 0);
   },
   getTitle: function (title) {
-    return title.trim()[0].toUpperCase() + title.trim().toLowerCase().slice(1);
+    this.title =
+      title.trim()[0].toUpperCase() + title.trim().toLowerCase().slice(1);
   },
+
   getServicePercentPrices: function (price, rollback) {
-    return Math.ceil(price - price * (rollback / 100));
+    this.servicePercentPrice = Math.ceil(price - price * (rollback / 100));
   },
 
   logger: function () {
-    for (let elem in this) {
-      console.log(elem);
-    }
+    console.log(this.services);
+    console.log(this.fullPrice);
     console.log(this.getRollbackMessage(this.fullPrice));
-    console.log(this.screens.toLowerCase().split(', '));
-  },
-  start: function () {
-    this.asking();
-    this.allServicePrices = this.getAllServicePrices();
-
-    this.servicePercentPrice = this.getServicePercentPrices(
-      this.fullPrice,
-      this.rollback,
-    );
-
-    this.fullPrice = this.getFullPrice(this.screenPrice, this.allServicePrices);
-
-    this.title = this.getTitle(this.title);
-    this.logger();
+    console.log(this.screens);
+    console.log(this.title);
   },
 };
 
