@@ -29,10 +29,19 @@ const appData = {
     this.title = document.getElementsByTagName('h1')[0].textContent;
     this.servicesPercent = document.querySelectorAll('other-items.percent');
     this.servicesNum = document.querySelectorAll('other-items.number');
-    this.rollback = document.querySelector('.rollback .range-value');
-    this.buttons = document.getElementsByClassName('handler_btn');
+    this.rollbackVal = document.querySelector('.rollback .range-value');
+    this.rollbackInput = document.querySelector('.rollback [type="range"]');
+    this.buttonStart = document.getElementsByClassName('handler_btn')[0];
+    this.buttonReset = document.getElementsByClassName('handler_btn')[1];
     this.plus = document.querySelector('.screen-btn');
-    this.inputs = Array.from(document.getElementsByClassName('total-input'));
+    this.inputTotal = document.getElementsByClassName('total-input')[0];
+    this.inputTotalCount = document.getElementsByClassName('total-input')[1];
+    this.inputTotalCountOther =
+      document.getElementsByClassName('total-input')[2];
+    this.inputTotalFullCoount =
+      document.getElementsByClassName('total-input')[3];
+    this.inputTotalCountRollback =
+      document.getElementsByClassName('total-input')[4];
     let screens = document.querySelectorAll('.screens');
   },
 
