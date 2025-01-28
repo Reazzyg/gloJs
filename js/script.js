@@ -6,6 +6,7 @@ const appData = {
   title: '',
   screens: [],
   screenPrice: 0,
+  screensAmmount: 0,
   adaptive: true,
   servicesPercent: {},
   servicesNumber: {},
@@ -64,6 +65,14 @@ const appData = {
       this.validateScreens();
       if (this.validateScreens()) {
         this.start();
+        this.rollbackInput.addEventListener('input', () => {
+          this.rollback = +this.rollbackInput.value;
+          this.rollbackVal.textContent = this.rollbackInput.value + '%';
+          this.priceWithRollback = Math.ceil(
+            this.fullPrice - this.fullPrice * (this.rollback / 100),
+          );
+          this.inputTotalCountRollback.value = this.priceWithRollback;
+        });
       }
     });
 
@@ -71,11 +80,6 @@ const appData = {
       this.addScreenBlock();
       this.screensCollection = document.querySelectorAll('.screen');
       this.validateScreens();
-    });
-
-    this.rollbackInput.addEventListener('input', () => {
-      this.rollback = +this.rollbackInput.value;
-      this.rollbackVal.textContent = this.rollbackInput.value + '%';
     });
   },
 
@@ -96,6 +100,7 @@ const appData = {
       this.screens.push({
         id: index,
         name: selectName,
+        ammount: +input.value,
         price: +select.value * +input.value,
       });
     });
@@ -144,11 +149,17 @@ const appData = {
     this.priceWithRollback = Math.ceil(
       this.fullPrice - this.fullPrice * (this.rollback / 100),
     );
+
+    this.screensAmmount = 0;
+
+    for (let screen of this.screens) {
+      this.screensAmmount += screen.ammount;
+    }
   },
 
   showResult: function () {
     this.inputTotal.value = this.screenPrice;
-    this.inputTotalCount.value = this.screens.length;
+    this.inputTotalCount.value = this.screensAmmount;
     this.inputTotalCountOther.value =
       this.servicePercentPrice + this.servicePricesNumber;
     this.inputTotalFullCount.value = this.fullPrice;
