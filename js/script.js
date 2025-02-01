@@ -17,6 +17,7 @@ const appData = {
   buttons: null,
   plus: null,
   inputs: [],
+  cmsPercent: 0,
 
   init: function () {
     this.getElements();
@@ -50,6 +51,15 @@ const appData = {
     this.inputTotalCountRollback =
       document.getElementsByClassName('total-input')[4];
     this.screensCollection = document.querySelectorAll('.screen');
+    this.select = document.querySelector('select');
+    this.screensInput = document.querySelector('.screen input[type="text"]');
+    this.checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    this.totalInputs = document.querySelectorAll(
+      '.main-total input[type="text"]',
+    );
+    this.cmsCheckbox = document.querySelector('#cms-open');
+    this.cmsBlock = document.querySelector('.hidden-cms-variants');
+    this.cmsInput = document.querySelector('#cms-other-input');
   },
 
   validateScreens: function () {
@@ -61,32 +71,135 @@ const appData = {
   },
 
   addEventListeners: function () {
+    this.plusAbortController = new AbortController();
+
     this.buttonStart.addEventListener('click', () => {
       this.validateScreens();
       if (this.validateScreens()) {
         this.start();
-        this.rollbackInput.addEventListener('input', () => {
-          this.rollback = +this.rollbackInput.value;
-          this.rollbackVal.textContent = this.rollbackInput.value + '%';
-          this.priceWithRollback = Math.ceil(
-            this.fullPrice - this.fullPrice * (this.rollback / 100),
-          );
-          this.inputTotalCountRollback.value = this.priceWithRollback;
-        });
+        this.disableInputs();
+        this.plusAbortController.abort();
       }
     });
 
-    this.plus.addEventListener('click', () => {
-      this.addScreenBlock();
-      this.screensCollection = document.querySelectorAll('.screen');
-      this.validateScreens();
+    this.rollbackInput.addEventListener('input', () => {
+      this.rollback = +this.rollbackInput.value;
+      this.rollbackVal.textContent = this.rollbackInput.value + '%';
+
+      if (this.fullPrice !== 0) {
+        this.priceWithRollback = Math.ceil(
+          this.fullPrice - this.fullPrice * (this.rollback / 100),
+        );
+        this.inputTotalCountRollback.value = this.priceWithRollback;
+      }
     });
+
+    this.plus.addEventListener(
+      'click',
+      () => {
+        this.createScreenTypeBlock();
+      },
+      {
+        signal: this.plusAbortController.signal,
+      },
+    );
+    this.cmsCheckbox.addEventListener('change', () => {
+      this.handleCmsChoise();
+    });
+
+    this.buttonReset.addEventListener('click', () => {
+      this.reset();
+    });
+  },
+  handleCmsChoise: function () {
+    this.cmsCheckbox.checked
+      ? (this.cmsBlock.style.display = 'flex')
+      : (this.cmsBlock.style.display = 'none');
+    const select = this.cmsBlock.querySelector('select');
+    select.addEventListener('change', () => {
+      if (select.value === 'other') {
+        this.cmsBlock.querySelector('.main-controls__input').style.display =
+          'block';
+      }
+      select.value === '50' ? (this.cmsPercent = 50) : null;
+    });
+  },
+
+  createScreenTypeBlock: function () {
+    this.addScreenBlock();
+    this.screensCollection = document.querySelectorAll('.screen');
+    this.validateScreens();
+  },
+
+  hideStartButton: function () {
+    this.buttonStart.style.display = 'none';
+    this.buttonReset.style.display = 'block';
+  },
+
+  showStartButton: function () {
+    this.buttonStart.style.display = 'block';
+    this.buttonReset.style.display = 'none';
+  },
+
+  disableInputs: function () {
+    document
+      .querySelectorAll('input[type="text"]:not(disabled)')
+      .forEach((input) => (input.disabled = true));
+    document
+      .querySelectorAll('select')
+      .forEach((select) => (select.disabled = true));
+
+    this.hideStartButton();
+  },
+
+  enableInputs: function () {
+    this.screensInput.disabled = false;
+    this.cmsInput.disabled = false;
+    document
+      .querySelectorAll('select')
+      .forEach((select) => (select.disabled = false));
+
+    this.showStartButton();
   },
 
   addScreenBlock: function () {
     const cloneScreen = this.screensCollection[0].cloneNode(true);
     this.screensCollection[this.screensCollection.length - 1].after(
       cloneScreen,
+    );
+  },
+
+  reset: function () {
+    const screens = document.querySelectorAll('.screen');
+
+    for (let i = 1; i < screens.length; i++) {
+      screens[i].remove();
+    }
+
+    document
+      .querySelectorAll('.screen input[type="text"]')
+      .forEach((input) => (input.value = ''));
+    document.querySelector('select').value = '';
+
+    this.screens = [];
+    this.checkboxes.forEach((checkbox) => (checkbox.checked = false));
+    this.totalInputs.forEach((input) => (input.value = ''));
+    this.rollbackInput.value = 0;
+    this.rollbackVal.textContent = '0%';
+
+    this.enableInputs();
+
+    this.cmsBlock.style.display = 'none';
+
+    this.plusAbortController = new AbortController();
+    this.plus.addEventListener(
+      'click',
+      () => {
+        this.createScreenTypeBlock();
+      },
+      {
+        signal: this.plusAbortController.signal,
+      },
     );
   },
 
@@ -97,6 +210,7 @@ const appData = {
       const select = screen.querySelector('select');
       const input = screen.querySelector('input');
       const selectName = select.options[select.selectedIndex].textContent;
+
       this.screens.push({
         id: index,
         name: selectName,
@@ -124,6 +238,7 @@ const appData = {
       }
     });
   },
+
   addTitle: function () {
     document.title = this.title;
   },
@@ -143,8 +258,16 @@ const appData = {
         this.screenPrice * (this.servicesPercent[key] / 100);
     }
 
+    if (this.cmsPercent === 0 && this.cmsInput.value !== '') {
+      this.cmsPercent = +this.cmsInput.value;
+    }
+
     this.fullPrice =
       +this.screenPrice + this.servicePricesNumber + this.servicePercentPrice;
+
+    this.cmsPrice = this.fullPrice * (this.cmsPercent / 100);
+
+    this.fullPrice += this.cmsPrice;
 
     this.priceWithRollback = Math.ceil(
       this.fullPrice - this.fullPrice * (this.rollback / 100),
@@ -161,7 +284,7 @@ const appData = {
     this.inputTotal.value = this.screenPrice;
     this.inputTotalCount.value = this.screensAmmount;
     this.inputTotalCountOther.value =
-      this.servicePercentPrice + this.servicePricesNumber;
+      this.servicePercentPrice + this.servicePricesNumber + this.cmsPrice;
     this.inputTotalFullCount.value = this.fullPrice;
     this.inputTotalCountRollback.value = this.priceWithRollback;
   },
